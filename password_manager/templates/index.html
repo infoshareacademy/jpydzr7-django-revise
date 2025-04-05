@@ -3,8 +3,18 @@
     <title>Password Manager Welcome Page</title>
 </head>
 <body>
-    <div>
-        This is index page for Password Manager...
-    </div>
+<div>
+    Password Manager App
+</div>
+{% if user.is_authenticated %}
+    Hello, {{ user.username }} |
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+{% else %}
+    <a href="{% url 'login' %}">Login</a>
+    <a href="{% url 'register' %}">Register</a>
+{% endif %}
 </body>
 </html>

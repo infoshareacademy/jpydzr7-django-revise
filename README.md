@@ -262,23 +262,121 @@ urlpatterns = [
 ------
 
 ## Create Django User
+* user in django can be created using command `python manage.py createsuperuser`
+* with shell script `python manage.py shell` 
+```python
+from django.contrib.auth.models import User
 
+user = User.objects.create_user(username='user_1', password='Test1234!')
+user.save()
+```
+* with custom login template/model/view (that is probably most advanced option)
+* using already created by Django `UserCreationForm` that is part of `django.contrib.auth.forms`
 
 ------
 
 ## Create login page
+* To login user, we need to create `login.html` in `templates` of our `password_manager` app
+```html
+<h1>Login form</h1>
 
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Login</button>
+</form>
+```
+This form contains couple of HTML tags: 
+- `h1` - represents html header it makes text that is inside of tags bigger.
+- `form` - that tag create form and as attribute declares http method that will be used to sent data from form, `POST` in this situation
+- `{% csrf_token %}` - is a protection from gathering info about user data (like login/password) from malicious software, like malicious sites that uses cookies to get info about user.
+- `{{ form.as_p }}` - that is a Django type shortcut to create all labels and inputs for every field required to login user
+- `button` - button is responsible to sent data to `UserCreationForm` and validate it.
+ 
+* next is to use predefined `views` from `auth` library inside `password_manager/urls.py`. It is worth notice here that `template_name` parameter is directing to `templates/login.html` that we just created.
+```python
+from django.urls import path
+
+from django.contrib.auth import views as auth_views
+
+urlpatterns = [
+    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login')
+]
+```
+
+* last step is to set variable called `LOGIN_REDIRECT_URL` in `settings.py`, it can be dynamic and depend on app but for now we are focusing on redirect user to `index` of `password_manager` app, after successful login.
+
+```python
+LOGIN_REDIRECT_URL = '/password-manager/'
+```
 
 ------
 
 ## Create logout page
+* Logout is similar to login but this time in `password_manager/urls.py` we are just setting predefined `LogoutView`, without creating any logout template
 
+```python
+from django.urls import path
+
+from django.contrib.auth import views as auth_views
+
+urlpatterns = [
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+]
+```
+
+* and like in login redirection, we need to set redirection point on logout in `settings.py`, variable is called `LOGOUT_REDIRECT_URL` and we are focusing on redirect user to login page after logout.
+
+```python
+LOGOUT_REDIRECT_URL = '/password-manager/login/'
+```
 
 ------
 
 ## Create register page
+* For registration new users we will be using custom view register form, but we will use inside it predefined `UserCreationForm`
+* in `views.py`, we created `register_form` where we are putting data from form in `templates/register.html` to create user. Build in `login` function from `django.contrib.auth` is responsible for login user after registration. User will be redirected to `index.html` after creation. 
+```python
+from django.contrib.auth.forms import UserCreationForm
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.template import loader
+from django.contrib.auth import login
 
+def register_form(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect("index")
+    else:
+        form = UserCreationForm()
+    register_template = loader.get_template("register.html")
+    context = {"form": form}
+    return HttpResponse(register_template.render(context, request))
+```
+* we need already mentioned template `templates/register.html`. It is very similar to `login.html`.
+```html
+<h1>Register form</h1>
 
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Register</button>
+</form>
+```
+* last step is to setup `register_form` inside `password_manager/urls.py`
+
+```python
+from django.urls import path
+
+from password_manager import views as password_manager_views
+
+urlpatterns = [
+    path('register/', password_manager_views.register_form, name='register'),
+]
+```
 ------
 
 ### Sources:
@@ -288,3 +386,5 @@ urlpatterns = [
 * https://docs.djangoproject.com/en/5.1/intro/tutorial01/
 * https://www.django-rest-framework.org/tutorial/quickstart/
 * https://stackoverflow.com/questions/40802165/have-django-to-automatically-create-database-on-migrate
+* https://www.tutorialspoint.com/form-as-p-ndash-render-django-forms-as-paragraph
+* https://forum.djangoproject.com/t/showing-method-not-allowed-get-users-logout/26044
