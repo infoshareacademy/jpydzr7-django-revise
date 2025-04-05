@@ -8,7 +8,7 @@
 
 1. Install Django using pip `pip install Django` (or `pip3 install Django`)
 2. [Install MySQL](#MySQL-Installation-Guide)
-3. install Django_Rest_framework using pip `pip install django_rest_framework` (or `pip3 install django_rest_framework`)
+3. install Django_Rest_framework using pip `pip install djangorestframework` (or `pip3 install djangorestframework`)
 4. Install python mysqlclient using pip `pip install mysqlclient` (or `pip3 install mysqlclient`)
 5. [Create django project](#Create-Django-Project)
 6. [Modify database dictionary to set up MySQL Connection](#Setup-MySQL-Connection)
