@@ -2,7 +2,7 @@
 
 ## Step 1 Changes:
     
-* Create Django Project
+* [Create django project](#Create-Django-Project)
 
 ## How to run a project step by step
 
