@@ -1,51 +1,55 @@
 # Django Revise
 
+------
+
 ## Step 1 Changes:
 
 * [Create django project](#Create-Django-Project)
+
+------
 
 ## Step 2 Changes:
 
 * [Setup MySQL Connection in Application](#Setup-MySQL-Connection)
 * [Add Django Rest Framework in Project](#Setup-Django-Rest-Framework-in-Project)
 * Run command `python manage.py migrate` to migrate django default tables it should look like that <br />
----
 ![db_structure.png](readme_src/db_structure.png)
 
----
 
 * Run command `python manage.py runserver` to check if app is running
 * After running django server You can open http://127.0.0.1:8000/ and that should be the result
 
----
 ![django_welcome_page.png](readme_src/django_welcome_page.png)
 
----
+------
 
 ## Step 3 Changes:
 
-* Create **Password Manager** App in project, running command `python manage.py startapp password_manager` Project structure should look like this <br />
----
-![step-2-project-structure.png](readme_src/step-2-project-structure.png)
+* Create **Password Manager** App in project, running command `python manage.py startapp password_manager` Project structure should look like this <br /> ![step-2-project-structure.png](readme_src/step-2-project-structure.png)
 
----
 * [Add created app to project settings.py in `INSTALLED_APPS`](#Adding-New-App-To-Project)
 * [create `urls.py` file inside `password_manager` app](#Adding-Urls-from-App-to-Project)
 * [create `PasswordData` model inside models.py](#Create-Model-inside-App)
 * [create basic view inside `views.py`](#Create-django-view)
 * [create `templates/index.html` inside `password_manager` and use it as view](#Working-with-templates)
 
+------
+
 ## Step 4 Changes:
-* Use predefined methods to create django user
-* Create login page
-* Create logout page
-* Create register page
+* [Use predefined methods to create django user](#Create-Django-User)
+* [Create login page](#Create-login-page)
+* [Create logout page](#Create-logout-page)
+* [Create register page](#Create-register-page)
+
+------
 
 ## Step 5 Changes:
-* Create View for listing password entries
-* Create Form for adding password entries
+* [Create View for listing password entries](#Create-passwords-listing-view)
+* [Create Form for adding password entries](#Create-password-adding-form)
 
-### Troubleshooting
+------
+
+## Troubleshooting
 
 * Error: `django.db.utils.OperationalError: (1049, "Unknown database 'django_rest_tutorial_infoshare'")` while running
   `python manage.py migrate`
@@ -58,6 +62,8 @@
 * if You do not see anything after running django server at http://127.0.0.1:8000/ try to open http://localhost:8000/
 * When You create new app and pass `urls.py` from app to main `django_rest_tutorial_infoshare/urls.py`, you might lose your welcome page, the reason is that it is not declared in your app directly. It is normal behavior. Your index (starting) page, would probably look something like this <br /> ![welcome_page_not_found.png](readme_src/welcome_page_not_found.png)
 
+------
+
 ## How to run a project step by step
 
 1. Install Django using pip `pip install Django` (or `pip3 install Django`)
@@ -69,15 +75,21 @@
 7. [Add Django Rest Framework in Project](#Setup-Django-Rest-Framework-in-Project)
 8. Run django project using command `python manage.py runserver` (or `python3 manage.py runserver`)
 
+------
+
 ## MySQL Installation Guide
 
 1. Install MySQL From website https://dev.mysql.com/downloads/installer/
 2. If You are using windows
 
+------
+
 ## Create Django Project
 
 * Using django admin `django-admin startproject mysite django_rest_tutorial_infoshare`
 * Using Pycharm
+
+------
 
 ## Setup MySQL Connection
 
@@ -100,6 +112,8 @@ DATABASES = {
 * In `'default'` key change `ENGINE` to `django.db.backends.mysql`, make sure that you have `mysqlclient` installed using `pip install mysqlclient`.
 * Setup `NAME`, `USER`, `PASSWORD`, `HOST` and `PORT` as it is in example. Make sure that you know your user name to database and password, for me, it is `django_user` and `root`.
 
+------
+
 ## Setup Django Rest Framework in Project
 
 * Find `settings.py` file and modify `INSTALLED_APPS` entry and put there `'rest_framework'` like in example
@@ -115,16 +129,22 @@ INSTALLED_APPS = [
 ]
 ```
 
+------
+
 ## Adding New App To Project
 
 * Open `settings.py` file in project
 * Find `INSTALLED_APPS` dictionary
 * Add link to config file to newly added to project app <br /> ![add_app_config_to_installed_apps.png](readme_src/add_app_config_to_installed_apps.png)
 
+------
+
 ## Adding Urls from App to Project
 * Create `urls.py` file inside `password_manager` app <br /> ![urls_in_password_manager_app.png](readme_src/urls_in_password_manager_app.png)
 * in `password_manager/urls.py` set `urlpatterns` list (it can be empty for now, example presents finished path with views, it is going to be made later in **Step 3**)<br /> ![initial_urlpatterns_password_manager.png](readme_src/initial_urlpatterns_password_manager.png)
 * import `password_manager/urls.py` into project `urls.py` <br /> ![root_urls_initial_password_manager.png](readme_src/root_urls_initial_password_manager.png)
+
+------
 
 ## Create Model inside App
 * Open `password_manager/models.py`
@@ -149,6 +169,8 @@ class PasswordData(models.Model):
 * to set tables into database run `python manage.py migrate` or if You would like to see all queries run `python manage.py sqlmigrate`.
 * After that `django_rest_tutorial_infoshare` database should look like this, it should have new table called `password_manager_passworddata` <br /> ![password_manager_passworddata_database_ref.png](readme_src/password_manager_passworddata_database_ref.png)
 * `password_manager_passworddata` should have every field that was declared inside `models.py` <br /> ![data_in_password_manager_passworddata.png](readme_src/data_in_password_manager_passworddata.png)
+
+------
 
 ## PasswordData - explanation
  
@@ -180,6 +202,8 @@ fields explanation:
 * `created_at` - represents date of entry creation
 * `__str__` - function that returns couple of field values
 
+------
+
 ## Create django view
 * In `password_manager/views.py` set function that represents view that will be visible for user, it can be something like that:
 ```python
@@ -194,6 +218,7 @@ def index(request):
 * It tells django to render that view when user opens http://127.0.0.1:8000/password-manager/.
 * When we open that page we should see something like that <br /> ![password-manager-app-index-file.png](readme_src/password-manager-app-index-file.png)
 
+------
 
 ## Working with templates
 * Templates can be used to render view with some values.
@@ -239,3 +264,43 @@ urlpatterns = [
 ```
 * It is same example like with `views.index`, but this time we use here view that is loaded from template.
 * When we visit page http://127.0.0.1:8000/password-manager/template-index/, we should see something like that <br /> ![template_index_view_page.png](readme_src/template_index_view_page.png)
+
+------
+
+## Create Django User
+
+
+------
+
+## Create login page
+
+
+------
+
+## Create logout page
+
+
+------
+
+## Create register page
+
+
+------
+
+## Create passwords listing view
+
+
+------
+
+## Create password adding form
+
+
+------
+
+### Sources:
+
+* https://stackoverflow.com/questions/19189813/setting-django-up-to-use-mysql
+* https://radixweb.com/blog/create-rest-api-using-django-rest-framework
+* https://docs.djangoproject.com/en/5.1/intro/tutorial01/
+* https://www.django-rest-framework.org/tutorial/quickstart/
+* https://stackoverflow.com/questions/40802165/have-django-to-automatically-create-database-on-migrate
