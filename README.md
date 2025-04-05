@@ -41,6 +41,10 @@
 * Create logout page
 * Create register page
 
+## Step 5 Changes:
+* Create View for listing password entries
+* Create Form for adding password entries
+
 ### Troubleshooting
 
 * Error: `django.db.utils.OperationalError: (1049, "Unknown database 'django_rest_tutorial_infoshare'")` while running
