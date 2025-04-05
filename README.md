@@ -1,5 +1,9 @@
 # Django Revise
 
+## Step 1 Changes:
+    
+* Create Django Project
+
 ## How to run a project step by step
 
 1. Install Django using pip `pip install Django` (or `pip3 install Django`)
