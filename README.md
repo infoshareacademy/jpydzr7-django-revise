@@ -43,12 +43,6 @@
 
 ------
 
-## Step 5 Changes:
-* [Create View for listing password entries](#Create-passwords-listing-view)
-* [Create Form for adding password entries](#Create-password-adding-form)
-
-------
-
 ## Troubleshooting
 
 * Error: `django.db.utils.OperationalError: (1049, "Unknown database 'django_rest_tutorial_infoshare'")` while running
@@ -283,16 +277,6 @@ urlpatterns = [
 ------
 
 ## Create register page
-
-
-------
-
-## Create passwords listing view
-
-
-------
-
-## Create password adding form
 
 
 ------
