@@ -43,6 +43,13 @@
 
 ------
 
+## Step 5 Changes
+
+* [Create user passwords list view](#Create-user-passwords-list-view)
+* [Create password entry form](#Create-password-entry-form)
+
+------
+
 ## Troubleshooting
 
 * Error: `django.db.utils.OperationalError: (1049, "Unknown database 'django_rest_tutorial_infoshare'")` while running
@@ -376,6 +383,136 @@ from password_manager import views as password_manager_views
 urlpatterns = [
     path('register/', password_manager_views.register_form, name='register'),
 ]
+```
+------
+
+## Create user passwords list view
+* Listing passwords, just take all `PasswordData`, that belongs to logged-in user and returns it with `password_list.html` in view
+
+```python
+from django.contrib.auth.decorators import login_required
+from password_manager.models import PasswordData
+from django.template import loader
+from django.http import HttpResponse
+
+@login_required
+def passwords_list(request):
+    entries = PasswordData.objects.filter(user=request.user)
+    passwords_list_template = loader.get_template("passwords_list.html")
+    context = {'entries': entries}
+    return HttpResponse(passwords_list_template.render(context, request))
+```
+
+* like in previous examples we need setup `urls.py`
+
+```python
+from django.urls import path
+
+from password_manager import views as password_manager_views
+
+urlpatterns = [
+    path('passwords_list/', password_manager_views.passwords_list, name='passwords_list'),
+]
+```
+
+* And `passwords_list.html` in `templates`
+ 
+```html
+<h2>Passwords list</h2>
+
+<table>
+    <tr>
+        <th>Service name</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Password</th>
+        <th>Created at</th>
+    </tr>
+    {% for entry in entries %}
+        <tr>
+            <td>{{ entry.service_name }}</td>
+            <td>{{ entry.username }}</td>
+            <td>{{ entry.email }}</td>
+            <td>{{ entry.password }}</td>
+            <td>{{ entry.created_at|date:"Y-m-d H:i" }}</td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="4">No passwords</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<p><a href="{% url 'add_password_form' %}">Add new login data</a></p>
+```
+
+------
+## Create password entry form
+
+* To create new password entry, we need to create new `view`, `add_password_form`, it works similar as register form but this time it setting `PasswordData` model with values from form.
+* It is also adding `@login_required` decorator, which informs django that only logged in user can access that form.
+```python
+from django.contrib.auth.decorators import login_required
+from password_manager.models import PasswordData
+from django.shortcuts import redirect
+from django.http import HttpResponse
+from django.template import loader
+
+@login_required
+def add_password_form(request):
+    if request.method == 'POST':
+        service_name = request.POST.get('service_name')
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        entry = PasswordData(user=request.user,
+                             service_name=service_name,
+                             username=username,
+                             email=email,
+                             password=password)
+        entry.save()
+
+        return redirect('passwords_list')
+
+    add_password_form_template = loader.get_template("add_password_form.html")
+    context = {}
+    return HttpResponse(add_password_form_template.render(context, request))
+```
+* As always view need to be registered in `urls.py`
+
+```python
+from django.urls import path
+
+from password_manager import views as password_manager_views
+
+urlpatterns = [
+    path('add_password_form/', password_manager_views.add_password_form, name='add_password_form'),
+]
+```
+
+* And we need a template in `templates/add_password_form.html`. Instead of `{{ form.as_p }}` shortcut, we use custom labels and input, notice that it has to have same `name` attributes like fields in `PasswordData` model.
+```html
+<h2>Add login data</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <label for="service_name">Service Name:
+        <input type="text" name="service_name" required><br><br>
+    </label>
+    <label for="username">Username:
+        <input type="text" name="username" required><br><br>
+    </label>
+    <label for="email">Email:
+        <input type="text" name="email" required><br><br>
+    </label>
+    <label for="password">Password:
+        <input type="password" name="password" required><br><br>
+    </label>
+    <button type="submit">Save</button>
+</form>
+
+<p><a href="{% url 'passwords_list' %}">Return to passwords list</a></p>
 ```
 ------
 
