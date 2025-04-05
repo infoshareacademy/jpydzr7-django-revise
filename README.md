@@ -35,6 +35,10 @@
 * [create basic view inside `views.py`](#Create-django-view)
 * [create `templates/index.html` inside `password_manager` and use it as view](#Working-with-templates)
 
+## Step 4 Changes:
+* Create View for listing password entries
+* Create Form for adding password entries
+
 ### Troubleshooting
 
 * Error: `django.db.utils.OperationalError: (1049, "Unknown database 'django_rest_tutorial_infoshare'")` while running
