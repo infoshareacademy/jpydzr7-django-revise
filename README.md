@@ -27,4 +27,4 @@
 
 ## Setup MySQL Connection
 
-* Find `setting.py` file and modify `DATABASES` entry
+* Find `settings.py` file and modify `DATABASES` entry
