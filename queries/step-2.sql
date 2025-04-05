@@ -1,0 +1,1 @@
+CREATE DATABASE django_rest_tutorial_infoshare;
