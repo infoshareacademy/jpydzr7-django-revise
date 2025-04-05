@@ -4,6 +4,11 @@
     
 * [Create django project](#Create-Django-Project)
 
+## Step 2 Changes:
+
+* [Setup MySQL Connection in Application](#Setup-MySQL-Connection)
+* [Add Django Rest Framework in Project](#Setup-Django-Rest-Framework-in-Project)
+
 ## How to run a project step by step
 
 1. Install Django using pip `pip install Django` (or `pip3 install Django`)
@@ -12,7 +17,8 @@
 4. Install python mysqlclient using pip `pip install mysqlclient` (or `pip3 install mysqlclient`)
 5. [Create django project](#Create-Django-Project)
 6. [Modify database dictionary to set up MySQL Connection](#Setup-MySQL-Connection)
-7. Run django project using command `python manage.py runserver` (or `python3 manage.py runserver`)
+7. [Add Django Rest Framework in Project](#Setup-Django-Rest-Framework-in-Project)
+8. Run django project using command `python manage.py runserver` (or `python3 manage.py runserver`)
 
 ## MySQL Installation Guide
 
@@ -28,3 +34,7 @@
 ## Setup MySQL Connection
 
 * Find `settings.py` file and modify `DATABASES` entry
+
+## Setup Django Rest Framework in Project
+
+* Find `settings.py` file and modify `INSTALLED_APPS` entry
