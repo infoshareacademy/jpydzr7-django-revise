@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.template import loader
 from django.contrib.auth import login
 
-from password_manager.models import PasswordData
+# from password_manager.models import PasswordData
 
 
 # Create your views here.
@@ -29,26 +29,26 @@ def register_form(request):
     return HttpResponse(register_template.render(context, request))
 
 
-@login_required
-def add_password_form(request):
-    if request.method == 'POST':
-        service_name = request.POST.get('service_name')
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-
-        entry = PasswordData(user=request.user,
-                             service_name=service_name,
-                             username=username,
-                             email=email,
-                             password=password)
-        entry.save()
-
-        return redirect('passwords_list')
-
-    add_password_form_template = loader.get_template("add_password_form.html")
-    context = {}
-    return HttpResponse(add_password_form_template.render(context, request))
+# @login_required
+# def add_password_form(request):
+#     if request.method == 'POST':
+#         service_name = request.POST.get('service_name')
+#         username = request.POST.get('username')
+#         email = request.POST.get('email')
+#         password = request.POST.get('password')
+#
+#         entry = PasswordData(user=request.user,
+#                              service_name=service_name,
+#                              username=username,
+#                              email=email,
+#                              password=password)
+#         entry.save()
+#
+#         return redirect('passwords_list')
+#
+#     add_password_form_template = loader.get_template("add_password_form.html")
+#     context = {}
+#     return HttpResponse(add_password_form_template.render(context, request))
 
 
 @login_required
