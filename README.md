@@ -56,6 +56,18 @@
 
 ------
 
+## Step 7 Changes
+
+* [Make migrations from SQL to Django Models](#Make-migrations-from-SQL-to-Django-Models)
+
+------
+
+## Step 8 Changes
+
+* [Using Mixins with Django Models and Views](#Using-Mixins-with-Django-Models-and-Views)
+
+------
+
 ## Troubleshooting
 
 * Error: `django.db.utils.OperationalError: (1049, "Unknown database 'django_rest_tutorial_infoshare'")` while running
@@ -590,7 +602,50 @@ python manage.py migrate
 ## Using Mixins with Django Models and Views
 
 * Mixins are specific type of class that can be inherited with different class, for example Model class or View class. It shouldn't be inherited alone but as a specific extension for different class.
+* We can create default `abstract` model class for setting all models with default `created_at` and `updated_at` rows in tables, for that we create Mixin called `TimestampMixin`
+```python
+from django.db import models
 
+class TimestampMixin(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+```
+* it looks like every model class but it has inner class, that is part of django framework called `Meta`, Meta class allows us to create properties and behaviors for models. For example here we setup `abstract = True`, this property defines that `TimestampMixin` will not be created as table during migrations. It can only be inherited in other models.
+* So we can update our `PasswordDataUser` and `PasswordData` model classes, It will looks like this:
+```python
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+
+
+# Create your models here.
+
+class TimestampMixin(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+class PasswordDataUser(AbstractUser, TimestampMixin):
+    def __str__(self):
+        return f"username: {self.username}, email: {self.email}"
+
+
+class PasswordData(TimestampMixin):
+    user = models.ForeignKey(PasswordDataUser, on_delete=models.CASCADE)
+    service_name = models.CharField(max_length=100)
+    username = models.CharField(max_length=100)
+    email = models.CharField(max_length=100)
+    password = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"service: {self.service_name} (username: {self.username}, email: {self.email}. password: {self.password})"
+```
+* We are using `TimestampMixin` instead of `models.Model` to extend our models, thanks to that after migrations, our database tables will have new properties: <br />
+![mixin_database](readme_src/mixin_database.png)
 -----
 ### Sources:
 
