@@ -56,6 +56,12 @@
 
 ------
 
+## Step 7 Changes
+
+* [Make migrations from SQL to Django Models](#Make-migrations-from-SQL-to-Django-Models)
+
+------
+
 ## Troubleshooting
 
 * Error: `django.db.utils.OperationalError: (1049, "Unknown database 'django_rest_tutorial_infoshare'")` while running
