@@ -50,6 +50,24 @@
 
 ------
 
+## Step 6 Changes
+
+* [Extend default Django User class](#Extend-default-Django-User-class)
+
+------
+
+## Step 7 Changes
+
+* [Make migrations from SQL to Django Models](#Make-migrations-from-SQL-to-Django-Models)
+
+------
+
+## Step 8 Changes
+
+* [Using Mixins with Django Models and Views](#Using-Mixins-with-Django-Models-and-Views)
+
+------
+
 ## Troubleshooting
 
 * Error: `django.db.utils.OperationalError: (1049, "Unknown database 'django_rest_tutorial_infoshare'")` while running
@@ -62,6 +80,14 @@
 
 * if You do not see anything after running django server at http://127.0.0.1:8000/ try to open http://localhost:8000/
 * When You create new app and pass `urls.py` from app to main `django_rest_tutorial_infoshare/urls.py`, you might lose your welcome page, the reason is that it is not declared in your app directly. It is normal behavior. Your index (starting) page, would probably look something like this <br /> ![welcome_page_not_found.png](readme_src/welcome_page_not_found.png)
+* If You have problem with creating new user after already setting `PasswordData` to existing one, You need to delete all `migrations` files folder from `password_manager/migrations` like in example below <br />
+![remove_migrations](readme_src/remove_migrations.png)<br />
+This action also requires to delete database that You already created, so do this only if You didn't make modifications by hands in your database, If You do made some changes to database, make sure to do a backup before deleting it.
+Then rerun commands `python manage.py makemigrations` and `python manage.py migrate`, after that everything should be working fine. That is related to that kind of error:
+```commandline
+ValueError: The field admin.LogEntry.user was declared with a lazy reference to 'password_manager.passworddatauser', but app 'password_manager' doesn't provide model 'passworddatauser'.
+The field password_manager.PasswordData.user was declared with a lazy reference to 'password_manager.passworddatauser', but app 'password_manager' doesn't provide model 'passworddatauser'.
+```
 
 ------
 
@@ -275,6 +301,19 @@ urlpatterns = [
 from django.contrib.auth.models import User
 
 user = User.objects.create_user(username='user_1', password='Test1234!')
+user.save()
+```
+* with custom login template/model/view (that is probably most advanced option)
+* using already created by Django `UserCreationForm` that is part of `django.contrib.auth.forms`
+
+------
+
+## Create PasswordDataUser
+* with shell script `python manage.py shell` 
+```python
+from password_manager.models import PasswordDataUser
+
+user = PasswordDataUser.objects.create_user(username='user_1', password='Test1234!')
 user.save()
 ```
 * with custom login template/model/view (that is probably most advanced option)
@@ -515,7 +554,137 @@ urlpatterns = [
 <p><a href="{% url 'passwords_list' %}">Return to passwords list</a></p>
 ```
 ------
+## Extend default Django User class
 
+* Django creators suggests to use default User for Admin proposes only
+* For every other use case documentation suggests to extend `AbstractUser` that is part of `django.contrib.auth.models`
+  * Django allows to use own User model as a default one, for this it is required to add new variable called `AUTH_USER_MODEL` to `settings.py`
+```python
+  AUTH_USER_MODEL = 'password_manager.PasswordDataUser'
+```
+* Before creating custom User model our database looks like that <br />
+![initial_db_before_custom_user.png](readme_src/initial_db_before_custom_user.png)
+* Next step is to create our User class in `password_manager/models.py`
+```python
+from django.contrib.auth.models import AbstractUser
+
+class PasswordDataUser(AbstractUser):
+    def __str__(self):
+        return f"username: {self.username}, email: {self.email}"
+```
+* we simply extend `AbstractUser` model that is part of django library to create our `PasswordDataUser`, this user has most of properties from `User` class that we used before. We put only `__str__` function but only to not leave body of class empty.
+
+* do not forget to change user foreign key in `PasswordData` after that change from `User` to `PasswordDataUser`
+![password_data_user_in_password_data](readme_src/password_data_user_in_password_data.png)
+* Just like it was mentioned before, we need to declare new `User` class in `settings.py`, for that simply put `AUTH_USER_MODEL` in settings file, it can be anywhere in file
+```python
+AUTH_USER_MODEL = "password_manager.PasswordDataUser"
+```
+* Last step is to use Django cli (commands) to create migrations and migrate new User class. For that we need two commands:
+```commandline
+python manage.py makemigrations
+python manage.py migrate
+```
+* After successfully running migrations we should see 3 new tables in our database <br />
+![new_password_data_user_db](readme_src/new_password_data_user_db.png)
+* If You would like to create user (for testing) that is based on `PasswordDataUser`, you can see a tutorial [here](#Create-PasswordDataUser) 
+------
+## Make migrations from SQL to Django Models
+
+* If You have existing `django_rest_tutorial_infoshare` database, make a backup of it (if You need to), and remove it
+* Run file `step-7.sql` in your database program of choice (Dbeaver, Pycharm etc.)
+* To migrations in reverse way, so we already have created database in some sql engine for example, MySQL, we have to setup database like in [this step](#Setup-MySQL-Connection) but in database name set already existing database.
+* Then run command `python manage.py inspectdb`, by default command take all tables from existing database and try to map it to `models.py`
+* We can set a file where models should be created: `python manage.py inspectdb > password_manager/models.py`
+* There is also an option to pass couple of tables that we would like to create as a models and skip every other ones: `python manage.py inspectdb table1 table2`
+* After running `python manage.py insepctdb > password_manager/models.py` models file should be looks like that:
+```python
+# This is an auto-generated Django model module.
+# You'll have to do the following manually to clean this up:
+#   * Rearrange models' order
+#   * Make sure each model has one field with primary_key=True
+#   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
+#   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
+# Feel free to rename the models, but don't rename db_table values or field names.
+from django.db import models
+
+
+class PasswordData(models.Model):
+    user = models.ForeignKey('User', models.DO_NOTHING, blank=True, null=True)
+    service_name = models.CharField(max_length=100, blank=True, null=True)
+    username = models.CharField(max_length=100, blank=True, null=True)
+    email = models.CharField(max_length=100, blank=True, null=True)
+    password = models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'password_data'
+
+
+class User(models.Model):
+    username = models.CharField(max_length=100, blank=True, null=True)
+    first_name = models.CharField(max_length=100, blank=True, null=True)
+    last_name = models.CharField(max_length=100, blank=True, null=True)
+    email = models.CharField(max_length=100, blank=True, null=True)
+    password = models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'user'
+```
+* as you might have see, it looks different then models.py that we created manually, for example in `PasswordData` at `user` it has `models.DO_NOTHING` instead of `models.CASCADE`. Even django on first couple lines gives some tips how to improve autogenerated code.
+* It is not perfect solution but it might be good place to start.
+-----
+## Using Mixins with Django Models and Views
+
+* Mixins are specific type of class that can be inherited with different class, for example Model class or View class. It shouldn't be inherited alone but as a specific extension for different class.
+* We can create default `abstract` model class for setting all models with default `created_at` and `updated_at` rows in tables, for that we create Mixin called `TimestampMixin`
+```python
+from django.db import models
+
+class TimestampMixin(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+```
+* it looks like every model class but it has inner class, that is part of django framework called `Meta`, Meta class allows us to create properties and behaviors for models. For example here we setup `abstract = True`, this property defines that `TimestampMixin` will not be created as table during migrations. It can only be inherited in other models.
+* So we can update our `PasswordDataUser` and `PasswordData` model classes, It will looks like this:
+```python
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+
+
+# Create your models here.
+
+class TimestampMixin(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+class PasswordDataUser(AbstractUser, TimestampMixin):
+    def __str__(self):
+        return f"username: {self.username}, email: {self.email}"
+
+
+class PasswordData(TimestampMixin):
+    user = models.ForeignKey(PasswordDataUser, on_delete=models.CASCADE)
+    service_name = models.CharField(max_length=100)
+    username = models.CharField(max_length=100)
+    email = models.CharField(max_length=100)
+    password = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"service: {self.service_name} (username: {self.username}, email: {self.email}. password: {self.password})"
+```
+* We are using `TimestampMixin` instead of `models.Model` to extend our models, thanks to that after migrations, our database tables will have new properties: <br />
+![mixin_database](readme_src/mixin_database.png)
+-----
 ### Sources:
 
 * https://stackoverflow.com/questions/19189813/setting-django-up-to-use-mysql
@@ -525,3 +694,7 @@ urlpatterns = [
 * https://stackoverflow.com/questions/40802165/have-django-to-automatically-create-database-on-migrate
 * https://www.tutorialspoint.com/form-as-p-ndash-render-django-forms-as-paragraph
 * https://forum.djangoproject.com/t/showing-method-not-allowed-get-users-logout/26044
+* https://docs.djangoproject.com/en/4.1/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project
+* https://medium.com/@karimdhrif4444/mastering-user-management-comprehensive-guide-to-extending-djangos-user-model-51c2ccd793d4
+* http://dev.to/idrisrampurawala/creating-django-models-of-an-existing-db-288m
+* https://docs.djangoproject.com/en/5.2/howto/legacy-databases/
