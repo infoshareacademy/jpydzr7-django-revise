@@ -10,4 +10,5 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('passwords_list/', password_manager_views.passwords_list, name='passwords_list'),
     path('add_password_form/', password_manager_views.add_password_form, name='add_password_form'),
+    path('entry/<int:entry_id>/', password_manager_views.password_details, name='password_details'),
 ]

@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.template import loader
 from django.contrib.auth import login
 from password_manager.models import PasswordData
@@ -56,3 +56,11 @@ def passwords_list(request):
     passwords_list_template = loader.get_template("passwords_list.html")
     context = {'entries': entries}
     return HttpResponse(passwords_list_template.render(context, request))
+
+
+@login_required
+def password_details(request, entry_id):
+    entry = get_object_or_404(PasswordData, id=entry_id, user=request.user)
+    password_details_template = loader.get_template("password_details.html")
+    context = {'entry': entry}
+    return HttpResponse(password_details_template.render(context, request))
