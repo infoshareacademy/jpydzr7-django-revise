@@ -1183,6 +1183,25 @@ of card. As `src` we set generated logo.dev url with django template tags with `
 
 ![img.png](readme_src/password_list_cards.png)
 
+To prevent errors in browser caused by CORS Policy, we need to install library to allow cors-headers `pip install django-cors-headers`
+and use it in `settings.py`, in `MIDDLEWARE` section we need to add `'corsheaders.middleware.CorsMiddleware'`
+
+![img.png](readme_src/middleware_cors.png)
+
+Add localhost and logo.dev to whitelist in `settings.py` above `MIDDLEWARE` list
+
+```python
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'https://www.logo.dev/'
+]
+```
+You can also use that variable to allow all network traffic, but is not recommended on production servers
+```python
+CORS_ORIGIN_ALLOW_ALL = True
+```
+
 ## Add Password Details template
 
 Last step is to create details view for every password entry. For that we are adding view in `views.py`
@@ -1233,7 +1252,8 @@ we are setting up new url in `password_manager/urls.py`, it has `entry_id` param
 ```
 
 Last step is to create link from `Card` into details, For that we need to modify our `passwords_list.html`, We are
-adding `<a href="{% url 'password_details' entry.id %}" class="card-password-details"> ... </a>`, updated password list will look like that:
+adding `<a href="{% url 'password_details' entry.id %}" class="card-password-details"> ... </a>`, updated password list
+will look like that:
 
 ```html
 {% extends 'index.html' %}
