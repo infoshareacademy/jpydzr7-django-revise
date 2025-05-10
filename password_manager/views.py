@@ -4,6 +4,8 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.template import loader
 from django.contrib.auth import login
+
+from password_manager.forms import SignUpForm
 from password_manager.models import PasswordData
 
 
@@ -16,13 +18,13 @@ def index(request):
 
 def register_form(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
             return redirect("index")
     else:
-        form = UserCreationForm()
+        form = SignUpForm()
     register_template = loader.get_template("register.html")
     context = {"form": form}
     return HttpResponse(register_template.render(context, request))
