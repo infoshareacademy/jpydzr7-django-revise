@@ -82,6 +82,12 @@
 
 ------
 
+## Step 10 Changes
+
+* [Add validation to forms](#Add-validation-to-forms)
+
+------
+
 ## Troubleshooting
 
 * Error: `django.db.utils.OperationalError: (1049, "Unknown database 'django_rest_tutorial_infoshare'")` while running
@@ -1275,6 +1281,72 @@ adding `<a href="{% url 'password_details' entry.id %}" class="card-password-det
 ```
 
 ![img_1.png](readme_src/password_details-view.png)
+
+## Add validation to forms
+
+To create validation in django it is required to use in templates django based function `form.non_field_errors`
+
+it can be used above every `<form>` tag in template like that 
+
+```html
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+
+<form method="post" class="needs-validation" novalidate>
+...
+```
+we are also using bootstrap classes to format error messages to look clean
+
+if we want to show specific errors for every field in template rule is similar, it has to be checked if field (like `username`, `password`, `email`, `password1` etc.) has `errors` and then display it, below field like that:
+
+```html
+<label for="id_username" class="form-label">Username</label>
+{{ form.username|add_class:"form-control" }}
+{% if form.username.errors %}
+<div class="invalid-feedback d-block">
+  {{ form.username.errors }}
+</div>
+{% endif %}
+...
+```
+
+We can also add javascript validation like if email field is right
+```javascript
+        (function () {
+            'use strict';
+            var forms = document.querySelectorAll('.needs-validation');
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+        })();
+```
+it can be used inside `<script>` tag or it can be imported to views.
+For that we need to create `static/js` directory and inside it create `validation.js`. <br>
+![img.png](readme_src/img.png)
+
+second step is to set variable `settings.py` like that:
+```python
+STATIC_URL = '/static/'
+```
+To import it to template we need to set in top of file placement of static directory
+```html
+{% load static %}
+```
+
+and at the bottom of template we set script import
+```html
+<script src="{% static 'js/validation.js' %}"></script>
+```
 
 ### Sources:
 
