@@ -20,6 +20,7 @@ LOGIN_REDIRECT_URL = '/password-manager/'
 LOGOUT_REDIRECT_URL = '/password-manager/login/'
 
 AUTH_USER_MODEL = "password_manager.PasswordDataUser"
+STATIC_URL = '/static/'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
