@@ -88,6 +88,10 @@
 
 ------
 
+## Step 11 Changes
+
+* [Add environment file to settings.py](#Add-environment-file-to-settings.py)
+
 ## Troubleshooting
 
 * Error: `django.db.utils.OperationalError: (1049, "Unknown database 'django_rest_tutorial_infoshare'")` while running
@@ -1346,6 +1350,56 @@ To import it to template we need to set in top of file placement of static direc
 and at the bottom of template we set script import
 ```html
 <script src="{% static 'js/validation.js' %}"></script>
+```
+
+## Add environment file to settings.py
+
+To hide used passwords for database in `settings.py`, it is required to create `.env` file. In project can be multiple .env files, for development, production and any other environment. `.env` file for development should be added to `.gitignore`
+
+```.gitignore
+.env
+.env.development
+```
+
+as for `.env` file it should be created in root directory of project and have key=value structure. for example:
+
+```dotenv
+USER=django_user
+PASSWORD=root
+HOST=localhost
+PORT=3306
+```
+Folder structure after create `.env` file should look like this: <br>
+![img.png](readme_src/envfile.png)
+
+To use `.env` files with django, it is required to install package called `environ`
+
+```shell
+pip install django-environ
+```
+
+last step is to use it in `settings.py` like in example below
+
+```python
+import environ
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+PROJECT_NAME = 'django_rest_tutorial_infoshare'
+
+env = environ.Env()
+environ.Env.read_env(BASE_DIR / '.env')
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': PROJECT_NAME,
+        'USER': env('USER'),
+        'PASSWORD': env('PASSWORD'),
+        'HOST': env('HOST'),
+        'PORT': env('PORT'),
+    }
+}
 ```
 
 ### Sources:
