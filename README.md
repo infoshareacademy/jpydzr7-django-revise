@@ -90,7 +90,15 @@
 
 ## Step 11 Changes
 
-* [Add environment file to settings.py](#Add-environment-file-to-settings.py)
+* [Add environment file to settings.py](#Add-environment-file-to-settings)
+
+------
+
+## Step 12 Changes
+
+* [How to use css with bootstrap](#How-to-use-css-with-bootstrap)
+
+------
 
 ## Troubleshooting
 
@@ -1352,7 +1360,7 @@ and at the bottom of template we set script import
 <script src="{% static 'js/validation.js' %}"></script>
 ```
 
-## Add environment file to settings.py
+## Add environment file to settings
 
 To hide used passwords for database in `settings.py`, it is required to create `.env` file. In project can be multiple .env files, for development, production and any other environment. `.env` file for development should be added to `.gitignore`
 
@@ -1400,6 +1408,77 @@ DATABASES = {
         'PORT': env('PORT'),
     }
 }
+```
+
+## How to use css with bootstrap
+
+Let's image that we want to add dark mode to our app. For that let's create `styles/style.css` and `js/script.js` inside `static` folder <br>
+![img.png](readme_src/darkmodefolderstructure.png) <br>
+next step is to edit `index.html`, we need to load static in same way as in other templates, add `style.css` in head and `script.js` at the bottom of page, just like in image:
+![img.png](readme_src/index-css-updated.png) <br>
+We are adding three entries in css file
+```css
+body.light-mode {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+body.dark-mode {
+  background-color: #121212;
+  color: #f1f1f1;
+}
+
+button {
+  transition: all 0.3s ease;
+}
+```
+And we are adding 3 functions for modifying classes between dark mode/light mode
+```javascript
+function setCurrentTheme() {
+    const currentTheme = localStorage.getItem('theme')
+    if (currentTheme === 'dark') {
+        localStorage.setItem('theme', 'dark')
+    } else if (currentTheme === 'light') {
+        localStorage.setItem('theme', 'light')
+    } else {
+        localStorage.setItem('theme', 'light')
+    }
+}
+
+function setTheme() {
+    const currentTheme = localStorage.getItem('theme')
+    const body = document.body;
+    if (currentTheme === 'dark') {
+        body.classList.add("dark-mode");
+        body.classList.remove("light-mode");
+    } else if (currentTheme === 'light') {
+        body.classList.add("light-mode");
+        body.classList.remove("dark-mode");
+    }
+}
+
+function toggleTheme() {
+    const currentTheme = localStorage.getItem('theme')
+    const body = document.body;
+    if (currentTheme === 'dark') {
+        localStorage.setItem('theme', 'light')
+        body.classList.add("light-mode");
+        body.classList.remove("dark-mode");
+    } else if (currentTheme === 'light') {
+        localStorage.setItem('theme', 'dark')
+        body.classList.add("dark-mode");
+        body.classList.remove("light-mode");
+    }
+}
+
+document.getElementById("toggle-theme").addEventListener("click", function () {
+    toggleTheme()
+});
+
+window.addEventListener("load", function () {
+    setCurrentTheme()
+    setTheme()
+});
 ```
 
 ### Sources:
