@@ -1,5 +1,9 @@
+import json
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
+from django.db.models import Count
+from django.db.models.functions import TruncDate
 from django.http import HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.template import loader
@@ -57,6 +61,29 @@ def passwords_list(request):
     entries = PasswordData.objects.filter(user=request.user)
     passwords_list_template = loader.get_template("passwords_list.html")
     context = {'entries': entries}
+    return HttpResponse(passwords_list_template.render(context, request))
+
+
+@login_required
+def passwords_chart(request):
+    entries = (
+        PasswordData.objects
+        .annotate(date=TruncDate('created_at'))
+        .values('date')
+        .annotate(count=Count('id'))
+        .order_by('date')
+        .filter(user=request.user)
+    )
+    print(entries)
+    # entries = PasswordData.objects.filter(user=request.user)
+    labels = [str(entry['date']) for entry in entries]
+    counts = [entry['count'] for entry in entries]
+
+    passwords_list_template = loader.get_template("passwords_chart.html")
+    context = {
+        'labels': json.dumps(labels),
+        'counts': json.dumps(counts),
+    }
     return HttpResponse(passwords_list_template.render(context, request))
 
 
